@@ -1,6 +1,14 @@
 # jev-dag
 
+![License: MIT](https://img.shields.io/badge/license-MIT-2DBFA8.svg)
+![Python](https://img.shields.io/badge/python-3.10%2B-3776AB.svg)
+![Dependencies](https://img.shields.io/badge/core%20deps-zero-2DBFA8.svg)
+![Oracle](https://img.shields.io/badge/oracle-Jev%20(TypeSafe)-FFB02E.svg)
+![Status](https://img.shields.io/badge/status-v0.1%20research-7f8b98.svg)
+
 **Resolve a DAG of enumerated decisions with a fast judgment oracle.**
+
+![How jev-dag works](docs/assets/hero.png)
 
 Instead of asking one model to *generate* a whole artifact (where generic "slop" is the modal
 sample), you describe the *space* of valid outcomes as a graph of bounded decisions and let an

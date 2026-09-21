@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>jev-dag — decisions as a DAG, resolved by a fast oracle</title>
+<meta name="description" content="Resolve a DAG of enumerated decisions with a fast judgment oracle (Jev). Selection over sampling; slop-free within a fixed vocabulary.">
+<style>
+  :root{
+    --ink:#0f1319; --panel:#1b222b; --line:#2a333e; --teal:#2DBFA8; --amber:#FFB02E;
+    --red:#E85D5D; --cream:#EAF0F2; --grey:#8b98a6; --code:#0b0f14;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--ink);color:var(--cream);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.6;
+    -webkit-font-smoothing:antialiased}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px}
+  header{padding:64px 0 24px;text-align:center}
+  h1{font-size:clamp(40px,8vw,68px);margin:0;letter-spacing:-.02em;
+    background:linear-gradient(90deg,var(--cream),var(--teal));-webkit-background-clip:text;
+    background-clip:text;-webkit-text-fill-color:transparent}
+  .tag{font-size:clamp(16px,3.5vw,21px);color:var(--cream);margin:14px auto 0;max-width:640px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:22px 0 4px}
+  .chip{font-size:12px;font-family:ui-monospace,Menlo,monospace;padding:5px 11px;border-radius:999px;
+    border:1px solid var(--line);color:var(--grey);background:var(--panel)}
+  .chip.t{color:var(--teal);border-color:#2dbfa855}
+  .chip.a{color:var(--amber);border-color:#ffb02e55}
+  .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:26px 0 8px}
+  .btn{padding:11px 20px;border-radius:9px;font-weight:600;font-size:15px;border:1px solid var(--line)}
+  .btn.p{background:var(--teal);color:#06231d;border-color:var(--teal)}
+  .btn.s{background:transparent;color:var(--cream)}
+  .hero{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:14px;
+    margin:36px 0;background:var(--ink)}
+  section{padding:26px 0;border-top:1px solid var(--line)}
+  h2{font-size:26px;margin:0 0 12px;letter-spacing:-.01em}
+  p{color:#c7d0d9}
+  .lead{color:var(--grey)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:18px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .card h3{margin:0 0 6px;font-size:16px;color:var(--teal)}
+  .card p{margin:0;font-size:14.5px;color:#b9c2cc}
+  pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:18px;overflow:auto;
+    font-size:13.5px;line-height:1.55}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  pre code{color:#cdd6e0}
+  .k{color:var(--teal)} .s{color:var(--amber)} .c{color:var(--grey)}
+  footer{padding:40px 0 60px;text-align:center;color:var(--grey);font-size:14px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>jev-dag</h1>
+    <p class="tag">Resolve a DAG of enumerated decisions with a fast judgment oracle.</p>
+    <div class="chips">
+      <span class="chip">MIT</span>
+      <span class="chip">python 3.10+</span>
+      <span class="chip t">core deps: zero</span>
+      <span class="chip a">oracle: Jev · TypeSafe</span>
+      <span class="chip">v0.1 · research</span>
+    </div>
+    <div class="cta">
+      <a class="btn p" href="https://github.com/AltSlate-Labs/jev-dag">View on GitHub</a>
+      <a class="btn s" href="#quickstart">Quickstart</a>
+      <a class="btn s" href="https://github.com/AltSlate-Labs/jev-dag/blob/main/docs/reasoning.md">The reasoning</a>
+    </div>
+  </header>
+
+  <img class="hero" src="assets/hero.png" alt="How jev-dag works: a brief flows into a DAG of decisions the oracle selects at each node, producing ranked alternatives.">
+
+  <section>
+    <h2>Selection over sampling</h2>
+    <p>When one model <em>generates</em> a whole artifact it samples — and the modal sample is the
+    generic one ("slop"). A judgment oracle like <a href="https://docs.typesafe.ai/api">Jev</a> doesn't
+    generate; it <strong>discriminates</strong>: given a state, a typed question, and bounded candidates,
+    it returns a choice with calibrated confidence. jev-dag factors the artifact into a DAG of dependent
+    decisions and lets the oracle <strong>select</strong> at each node, while code holds the invariants.</p>
+    <p class="lead">Where the candidate sets are closed — a fixed design system, component catalog, or
+    approved tech radar — every decision is a cheap enumerated selection: no generation, slop-free by
+    construction, fast, parallelizable, and fully auditable.</p>
+  </section>
+
+  <section id="quickstart">
+    <h2>Quickstart</h2>
+<pre><code><span class="c"># pip install -e ".[dev]" ; export JEV_KEY=...</span>
+<span class="k">from</span> jev_dag <span class="k">import</span> Decision, Graph, run, JevOracle
+
+graph = Graph([
+    Decision(<span class="s">"task"</span>, <span class="s">"What is the primary task?"</span>,
+             candidates=<span class="k">lambda</span> state, ans: {<span class="s">"compare"</span>: <span class="s">"Compare records"</span>,
+                                             <span class="s">"triage"</span>: <span class="s">"Work a queue"</span>}),
+    Decision(<span class="s">"layout"</span>, <span class="s">"Which layout supports that task?"</span>,
+             depends_on=[<span class="s">"task"</span>],              <span class="c"># sees the 'task' answer</span>
+             candidates=<span class="k">lambda</span> state, ans:
+                 {<span class="s">"split"</span>: <span class="s">"Side by side"</span>} <span class="k">if</span> ans[<span class="s">"task"</span>] == <span class="s">"compare"</span>
+                 <span class="k">else</span> {<span class="s">"list_detail"</span>: <span class="s">"List + detail"</span>}),   <span class="c"># hard constraint, in code</span>
+])
+
+result = run(graph, <span class="s">"Agents compare two tickets before resolving."</span>, JevOracle())
+<span class="k">print</span>(result.top.answers)   <span class="c"># {'task': 'compare', 'layout': 'split'}</span>
+</code></pre>
+  </section>
+
+  <section>
+    <h2>What you get</h2>
+    <div class="grid">
+      <div class="card"><h3>Hard constraints in code</h3><p>Your candidate recipe filters options before the oracle sees them — it can't pick something invalid.</p></div>
+      <div class="card"><h3>Information flows down the DAG</h3><p>Each node receives every ancestor's answer, not just execution order.</p></div>
+      <div class="card"><h3>Branch &amp; rank</h3><p>Mark a node to keep its top options, producing multiple alternatives, then rank them by a coherence score.</p></div>
+      <div class="card"><h3>Calibrated confidence</h3><p>Every choice carries a confidence — low confidence flags where your vocabulary has a gap, and drives escalation.</p></div>
+      <div class="card"><h3>Swappable oracle</h3><p>Jev is the default; any object implementing <code>choice/noul/score</code> works. Tests use a deterministic one.</p></div>
+      <div class="card"><h3>Zero-dependency core</h3><p>Stdlib only, Python ≥ 3.10. The engine is small enough to read in one sitting.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <a href="https://github.com/AltSlate-Labs/jev-dag">github.com/AltSlate-Labs/jev-dag</a> · MIT © 2026 AltSlate Labs
+  </footer>
+</div>
+</body>
+</html>
