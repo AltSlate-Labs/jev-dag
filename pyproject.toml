@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jev-dag"
+version = "0.1.0"
+description = "Resolve a DAG of enumerated decisions with a fast judgment oracle (Jev by default)."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [{ name = "AltSlate Labs" }]
+keywords = ["dag", "decision", "jev", "typesafe", "llm", "design-system", "synthesis"]
+dependencies = []                        # core is stdlib-only (JevOracle uses urllib)
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.urls]
+Homepage = "https://github.com/AltSlate-Labs/jev-dag"
+
+[tool.hatch.build.targets.wheel]
+packages = ["jev_dag"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
